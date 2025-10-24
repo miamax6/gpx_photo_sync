@@ -63,10 +63,11 @@ echo.
 echo [3/4] Voulez-vous anonymiser les coordonnees GPS ?
 echo        (Remplace coordonnees precises par centre-ville)
 echo.
-echo   1. NON - Coordonnees exactes
+echo   1. NON - Coordonnees exactes (defaut)
 echo   2. OUI - Coordonnees centre-ville (anonymise)
 echo.
-set /p "anon_choice=Votre choix (1-2): "
+set /p "anon_choice=Votre choix (1-2) [1]: "
+if "%anon_choice%"=="" set "anon_choice=1"
 
 set "anonymize_flag="
 if "%anon_choice%"=="2" set "anonymize_flag=--anonymize"
@@ -202,10 +203,11 @@ echo.
 echo [3/4] Voulez-vous creer une sauvegarde des fichiers originaux ?
 echo        (Recommande pour la premiere utilisation)
 echo.
-echo   1. OUI - Creer .backup (recommande)
+echo   1. OUI - Creer .backup (recommande, defaut)
 echo   2. NON - Modifier directement
 echo.
-set /p "backup_choice=Votre choix (1-2): "
+set /p "backup_choice=Votre choix (1-2) [1]: "
+if "%backup_choice%"=="" set "backup_choice=1"
 
 set "backup_flag="
 if "%backup_choice%"=="1" set "backup_flag=--backup"
@@ -213,13 +215,14 @@ if "%backup_choice%"=="1" set "backup_flag=--backup"
 echo.
 echo [4/4] Mode de fonctionnement:
 echo.
-echo   1. SIMULATION (dry-run) - Tester sans modifier
-echo   2. EXECUTION - Modifier reellement les fichiers
+echo   1. EXECUTION - Modifier reellement les fichiers (defaut)
+echo   2. SIMULATION (dry-run) - Tester sans modifier
 echo.
-set /p "mode_choice=Votre choix (1-2): "
+set /p "mode_choice=Votre choix (1-2) [1]: "
+if "%mode_choice%"=="" set "mode_choice=1"
 
 set "dryrun_flag="
-if "%mode_choice%"=="1" set "dryrun_flag=--dry-run"
+if "%mode_choice%"=="2" set "dryrun_flag=--dry-run"
 
 echo.
 echo ========================================================================
@@ -308,10 +311,11 @@ if "%gpx_output%"=="" (
 
 echo.
 echo [3/6] Anonymiser les coordonnees GPS ?
-echo   1. NON - Coordonnees exactes
+echo   1. NON - Coordonnees exactes (defaut)
 echo   2. OUI - Coordonnees centre-ville
 echo.
-set /p "anon_choice=Choix (1-2): "
+set /p "anon_choice=Choix (1-2) [1]: "
+if "%anon_choice%"=="" set "anon_choice=1"
 
 set "anonymize_flag="
 if "%anon_choice%"=="2" set "anonymize_flag=--anonymize"
@@ -334,23 +338,25 @@ if not exist "%nef_folder%" (
 
 echo.
 echo [5/6] Creer une sauvegarde des NEF ?
-echo   1. OUI - Creer .backup (recommande)
+echo   1. OUI - Creer .backup (recommande, defaut)
 echo   2. NON - Modifier directement
 echo.
-set /p "backup_choice=Choix (1-2): "
+set /p "backup_choice=Choix (1-2) [1]: "
+if "%backup_choice%"=="" set "backup_choice=1"
 
 set "backup_flag="
 if "%backup_choice%"=="1" set "backup_flag=--backup"
 
 echo.
 echo [6/6] Mode de fonctionnement:
-echo   1. SIMULATION (dry-run)
-echo   2. EXECUTION
+echo   1. EXECUTION - Modifier reellement les fichiers (defaut)
+echo   2. SIMULATION (dry-run) - Tester sans modifier
 echo.
-set /p "mode_choice=Choix (1-2): "
+set /p "mode_choice=Choix (1-2) [1]: "
+if "%mode_choice%"=="" set "mode_choice=1"
 
 set "dryrun_flag="
-if "%mode_choice%"=="1" set "dryrun_flag=--dry-run"
+if "%mode_choice%"=="2" set "dryrun_flag=--dry-run"
 
 echo.
 echo ========================================================================
