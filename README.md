@@ -56,7 +56,7 @@ pip install Pillow piexif requests pyexiv2
 
 ## 📖 Utilisation
 
-### Option 1 : Interface interactive (recommandé pour débutants)
+### Option 1 : Interface interactive (recommandé)
 
 Double-cliquez sur `gpx_sync_interactive.bat` et laissez-vous guider !
 
