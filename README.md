@@ -215,3 +215,5 @@ Pour toute question ou problème :
 ---
 
 ⭐ **Si ce projet vous a été utile, n'hésitez pas à lui donner une étoile !** ⭐
+
+Si voulez me payer une bière ou un café pour le temps investi 😉🙏 www.paypal.me/miamax
