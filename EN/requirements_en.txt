@@ -1,0 +1,14 @@
+# Dependencies for photo_gps_to_gpx.py and sync_gpx_to_photos.py
+# Installation: pip install -r requirements.txt
+
+# Image processing and EXIF
+Pillow>=10.0.0
+
+# EXIF reading (piexif especially for NEF)
+piexif>=1.1.3
+
+# HTTP requests for reverse geocoding
+requests>=2.31.0
+
+# EXIF/IPTC metadata for RAW files (NEF, CR2, etc.)
+pyexiv2>=2.11.0

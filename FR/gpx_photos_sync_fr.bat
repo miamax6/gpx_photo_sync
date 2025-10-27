@@ -91,9 +91,9 @@ echo [4/4] Generation du GPX en cours...
 echo.
 
 if "%gpx_output%"=="%photo_source%" (
-    python photo_gps_to_gpx.py "%photo_source%" %anonymize_flag%
+    python photo_gps_to_gpx_fr.py "%photo_source%" %anonymize_flag%
 ) else (
-    python photo_gps_to_gpx.py "%photo_source%" "%gpx_output%" %anonymize_flag%
+    python photo_gps_to_gpx_fr.py "%photo_source%" "%gpx_output%" %anonymize_flag%
 )
 
 if %errorlevel% neq 0 (
@@ -249,7 +249,7 @@ echo.
 echo Synchronisation en cours...
 echo.
 
-python sync_gpx_to_photos.py "%gpx_file%" "%nef_folder%" %backup_flag% %dryrun_flag%
+python sync_gpx_to_photos_fr.py "%gpx_file%" "%nef_folder%" %backup_flag% %dryrun_flag%
 
 if %errorlevel% neq 0 (
     echo.
@@ -383,9 +383,9 @@ echo ========================================================================
 echo.
 
 if "%gpx_output%"=="%photo_source%" (
-    python photo_gps_to_gpx.py "%photo_source%" %anonymize_flag%
+    python photo_gps_to_gpx_fr.py "%photo_source%" %anonymize_flag%
 ) else (
-    python photo_gps_to_gpx.py "%photo_source%" "%gpx_output%" %anonymize_flag%
+    python photo_gps_to_gpx_fr.py "%photo_source%" "%gpx_output%" %anonymize_flag%
 )
 
 if %errorlevel% neq 0 (
@@ -418,7 +418,7 @@ echo [ETAPE 2/2] Synchronisation GPX vers Photos NEF...
 echo ========================================================================
 echo.
 
-python sync_gpx_to_photos.py "%generated_gpx%" "%nef_folder%" %backup_flag% %dryrun_flag%
+python sync_gpx_to_photos_fr.py "%generated_gpx%" "%nef_folder%" %backup_flag% %dryrun_flag%
 
 if %errorlevel% neq 0 (
     echo.
