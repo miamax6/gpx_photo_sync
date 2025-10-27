@@ -2,7 +2,7 @@
 - [Français 🇫🇷](#%EF%B8%8F-photo-gps-sync---géotaggage-automatique-de-photos)
 ___
 
-# 📸🗺️ Photo GPS Sync - Automatic Photo Geotagging
+# 📸🗺️ GPX PHOTO SYNC - Automatic Photo Geotagging
 
 Complete solution to generate GPX tracks from your smartphone photos and automatically synchronize GPS and location data to your RAW photos (Nikon NEF, Canon CR2, Sony ARW) or JPEG.
 
@@ -223,7 +223,7 @@ For any questions or issues:
 If you want to buy me a beer or a coffee for the time invested 😉🙏 www.paypal.me/miamax
 ____
 
-# 📸🗺️ Photo GPS Sync - Géotaggage automatique de photos
+# 📸🗺️ GPX PHOTO SYNC - Géotaggage automatique de photos
 
 Solution complète pour générer des traces GPX depuis vos photos smartphone et synchroniser automatiquement les données GPS et de localisation vers vos photos RAW (Nikon NEF, Canon CR2, Sony ARW) ou JPEG.
 

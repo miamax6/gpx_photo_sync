@@ -1,4 +1,4 @@
-# 📸🗺️ Photo GPS Sync - Géotaggage automatique de photos
+# 📸🗺️ GPX PHOTO SYNC - Géotaggage automatique de photos
 
 Solution complète pour générer des traces GPX depuis vos photos smartphone et synchroniser automatiquement les données GPS et de localisation vers vos photos RAW (Nikon NEF, Canon CR2, Sony ARW) ou JPEG.
 

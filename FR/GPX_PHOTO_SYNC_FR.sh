@@ -6,7 +6,7 @@
 show_menu() {
     clear
     echo "========================================================================"
-    echo "                 GESTIONNAIRE GPX - PHOTOS"
+    echo "                           GPX PHOTO SYNC"
     echo "========================================================================"
     echo
     echo "  1. Generer GPX depuis photos smartphone"

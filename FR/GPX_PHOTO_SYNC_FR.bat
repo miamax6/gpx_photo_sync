@@ -1,57 +1,57 @@
 @echo off
 setlocal enabledelayedexpansion
 
-REM Interactive script to generate GPX from photos and synchronize
+REM Script interactif pour generer GPX depuis photos et synchroniser
 
 color 0A
-title GPX Photo Manager
+title Gestionnaire GPX - Photos
 
-:MAIN_MENU
+:MENU_PRINCIPAL
 cls
 echo ========================================================================
-echo                 GPX PHOTO MANAGER
+echo                           GPX PHOTO SYNC
 echo ========================================================================
 echo.
-echo   1. Generate GPX from smartphone photos
-echo   2. Synchronize GPX to Nikon photos (NEF)
-echo   3. Complete Pipeline (1 + 2 automatic)
-echo   4. Exit
+echo   1. Generer GPX depuis photos smartphone
+echo   2. Synchroniser GPX vers photos Nikon (NEF)
+echo   3. Pipeline complet (1 + 2 automatique)
+echo   4. Quitter
 echo.
 echo ========================================================================
 echo.
-set /p "choice=Your choice (1-4): "
+set /p "choice=Votre choix (1-4): "
 
-if "%choice%"=="1" goto GENERATE_GPX
+if "%choice%"=="1" goto GENERER_GPX
 if "%choice%"=="2" goto SYNC_GPX
-if "%choice%"=="3" goto COMPLETE_PIPELINE
-if "%choice%"=="4" goto END
-goto MAIN_MENU
+if "%choice%"=="3" goto PIPELINE_COMPLET
+if "%choice%"=="4" goto FIN
+goto MENU_PRINCIPAL
 
 REM ============================================================================
-REM STEP 1: GENERATE GPX FROM PHOTOS
+REM ETAPE 1: GENERER GPX DEPUIS PHOTOS
 REM ============================================================================
-:GENERATE_GPX
+:GENERER_GPX
 cls
 echo ========================================================================
-echo              STEP 1: GENERATE GPX FROM PHOTOS
+echo              ETAPE 1: GENERER GPX DEPUIS PHOTOS
 echo ========================================================================
 echo.
 
-echo [1/4] Folder containing your smartphone photos:
-echo        (Example: F:\Photos\Smartphones\Mobile\2023_best)
+echo [1/4] Dossier contenant vos photos smartphone:
+echo        (Exemple: F:\Photos\Smartphones\Mobile\2023_best)
 echo.
-set /p "photo_source=Path: "
+set /p "photo_source=Chemin: "
 
 if not exist "%photo_source%" (
     echo.
-    echo [ERROR] Folder does not exist!
+    echo [ERREUR] Le dossier n'existe pas!
     pause
-    goto GENERATE_GPX
+    goto GENERER_GPX
 )
 
 echo.
-echo [2/4] GPX destination folder (leave empty = same folder):
-echo        (Example: E:\MyGPX or leave empty)
+echo [2/4] Dossier de destination du GPX (laissez vide = meme dossier):
+echo        (Exemple: E:\MesGPX ou laissez vide)
 echo.
 set /p "gpx_output="
 
@@ -60,13 +60,13 @@ if "%gpx_output%"=="" (
 )
 
 echo.
-echo [3/4] Do you want to anonymize GPS coordinates?
-echo        (Replaces precise coordinates with city center)
+echo [3/4] Voulez-vous anonymiser les coordonnees GPS ?
+echo        (Remplace coordonnees precises par centre-ville)
 echo.
-echo   1. NO - Exact coordinates (default)
-echo   2. YES - City center coordinates (anonymized)
+echo   1. NON - Coordonnees exactes (defaut)
+echo   2. OUI - Coordonnees centre-ville (anonymise)
 echo.
-set /p "anon_choice=Your choice (1-2) [1]: "
+set /p "anon_choice=Votre choix (1-2) [1]: "
 if "%anon_choice%"=="" set "anon_choice=1"
 
 set "anonymize_flag="
@@ -74,33 +74,33 @@ if "%anon_choice%"=="2" set "anonymize_flag=--anonymize"
 
 echo.
 echo ========================================================================
-echo GPX GENERATION SUMMARY:
+echo RESUME DE LA GENERATION GPX:
 echo ========================================================================
-echo   Source photos:      %photo_source%
-echo   GPX destination:    %gpx_output%
-echo   Anonymization:      %anon_choice%
-if "%anon_choice%"=="2" echo                       (city center coordinates)
-if "%anon_choice%"=="1" echo                       (exact coordinates)
+echo   Photos source:      %photo_source%
+echo   Destination GPX:    %gpx_output%
+echo   Anonymisation:      %anon_choice%
+if "%anon_choice%"=="2" echo                       (coordonnees centre-ville)
+if "%anon_choice%"=="1" echo                       (coordonnees exactes)
 echo ========================================================================
 echo.
-echo Press any key to start generation...
+echo Appuyez sur une touche pour lancer la generation...
 pause >nul
 
 echo.
-echo [4/4] Generating GPX...
+echo [4/4] Generation du GPX en cours...
 echo.
 
 if "%gpx_output%"=="%photo_source%" (
-    python photo_gps_to_gpx_en.py "%photo_source%" %anonymize_flag%
+    python photo_gps_to_gpx_fr.py "%photo_source%" %anonymize_flag%
 ) else (
-    python photo_gps_to_gpx_en.py "%photo_source%" "%gpx_output%" %anonymize_flag%
+    python photo_gps_to_gpx_fr.py "%photo_source%" "%gpx_output%" %anonymize_flag%
 )
 
 if %errorlevel% neq 0 (
     echo.
-    echo [ERROR] GPX generation failed!
+    echo [ERREUR] La generation du GPX a echoue!
     pause
-    goto MAIN_MENU
+    goto MENU_PRINCIPAL
 )
 
 for %%F in ("%photo_source%") do set "folder_name=%%~nxF"
@@ -118,39 +118,39 @@ if not exist "%generated_gpx%" (
 
 echo.
 echo ========================================================================
-echo GPX GENERATED SUCCESSFULLY!
+echo GPX GENERE AVEC SUCCES!
 echo ========================================================================
-echo   File: %generated_gpx%
+echo   Fichier: %generated_gpx%
 echo ========================================================================
 echo.
 pause
-goto MAIN_MENU
+goto MENU_PRINCIPAL
 
 REM ============================================================================
-REM STEP 2: SYNCHRONIZE GPX TO PHOTOS
+REM ETAPE 2: SYNCHRONISER GPX VERS PHOTOS
 REM ============================================================================
 :SYNC_GPX
 cls
 echo ========================================================================
-echo           STEP 2: SYNCHRONIZE GPX TO NIKON PHOTOS
+echo           ETAPE 2: SYNCHRONISER GPX VERS PHOTOS NIKON
 echo ========================================================================
 echo.
 
-echo [1/4] Folder containing GPX files:
-echo        (Example: E:\MyGPX)
+echo [1/4] Dossier contenant les fichiers GPX:
+echo        (Exemple: E:\MesGPX)
 echo.
-set /p "gpx_folder=Path: "
+set /p "gpx_folder=Chemin: "
 
 if not exist "%gpx_folder%" (
     echo.
-    echo [ERROR] Folder does not exist!
+    echo [ERREUR] Le dossier n'existe pas!
     pause
     goto SYNC_GPX
 )
 
-REM List available GPX files
+REM Lister les fichiers GPX disponibles
 echo.
-echo Searching for GPX files in: %gpx_folder%
+echo Recherche des fichiers GPX dans: %gpx_folder%
 echo.
 
 set count=0
@@ -161,64 +161,64 @@ for %%F in ("%gpx_folder%\*.gpx") do (
 )
 
 if %count%==0 (
-    echo [ERROR] No GPX file found in this folder!
+    echo [ERREUR] Aucun fichier GPX trouve dans ce dossier!
     pause
     goto SYNC_GPX
 )
 
 echo.
-echo   [0] Enter manual path
+echo   [0] Entrer un chemin manuel
 echo.
-set /p "gpx_choice=Choose a file (0-%count%): "
+set /p "gpx_choice=Choisissez un fichier (0-%count%): "
 
 if "%gpx_choice%"=="0" (
     echo.
-    echo Enter the full path of the GPX file:
-    set /p "gpx_file=Path: "
+    echo Entrez le chemin complet du fichier GPX:
+    set /p "gpx_file=Chemin: "
 ) else (
     set "gpx_file=!gpx_file_%gpx_choice%!"
 )
 
 if not exist "%gpx_file%" (
     echo.
-    echo [ERROR] GPX file does not exist!
+    echo [ERREUR] Le fichier GPX n'existe pas!
     pause
     goto SYNC_GPX
 )
 
 echo.
-echo [2/4] Folder containing your Nikon photos (NEF):
-echo        (Example: M:\Photos\NIKON\2018\july)
+echo [2/4] Dossier contenant vos photos Nikon (NEF):
+echo        (Exemple: M:\Photos\NIKON\2018\juillet)
 echo.
-set /p "nef_folder=Path: "
+set /p "nef_folder=Chemin: "
 
 if not exist "%nef_folder%" (
     echo.
-    echo [ERROR] Folder does not exist!
+    echo [ERREUR] Le dossier n'existe pas!
     pause
     goto SYNC_GPX
 )
 
 echo.
-echo [3/4] Do you want to create a backup of the original files?
-echo        (Recommended for first use)
+echo [3/4] Voulez-vous creer une sauvegarde des fichiers originaux ?
+echo        (Recommande pour la premiere utilisation)
 echo.
-echo   1. YES - Create .backup (recommended, default)
-echo   2. NO - Modify directly
+echo   1. OUI - Creer .backup (recommande, defaut)
+echo   2. NON - Modifier directement
 echo.
-set /p "backup_choice=Your choice (1-2) [1]: "
+set /p "backup_choice=Votre choix (1-2) [1]: "
 if "%backup_choice%"=="" set "backup_choice=1"
 
 set "backup_flag="
 if "%backup_choice%"=="1" set "backup_flag=--backup"
 
 echo.
-echo [4/4] Operating mode:
+echo [4/4] Mode de fonctionnement:
 echo.
-echo   1. EXECUTION - Actually modify files (default)
-echo   2. SIMULATION (dry-run) - Test without modifying
+echo   1. EXECUTION - Modifier reellement les fichiers (defaut)
+echo   2. SIMULATION (dry-run) - Tester sans modifier
 echo.
-set /p "mode_choice=Your choice (1-2) [1]: "
+set /p "mode_choice=Votre choix (1-2) [1]: "
 if "%mode_choice%"=="" set "mode_choice=1"
 
 set "dryrun_flag="
@@ -226,82 +226,82 @@ if "%mode_choice%"=="2" set "dryrun_flag=--dry-run"
 
 echo.
 echo ========================================================================
-echo SYNCHRONIZATION SUMMARY:
+echo RESUME DE LA SYNCHRONISATION:
 echo ========================================================================
-echo   GPX file:           %gpx_file%
-echo   NEF photos:         %nef_folder%
+echo   Fichier GPX:        %gpx_file%
+echo   Photos NEF:         %nef_folder%
 echo   Backup:             %backup_choice%
-if "%backup_choice%"=="1" echo                       (.backup files created)
-if "%backup_choice%"=="2" echo                       (no backup)
+if "%backup_choice%"=="1" echo                       (fichiers .backup crees)
+if "%backup_choice%"=="2" echo                       (pas de backup)
 echo   Mode:               %mode_choice%
-if "%mode_choice%"=="1" echo                       (EXECUTION - actual modifications)
-if "%mode_choice%"=="2" echo                       (SIMULATION - no modifications)
+if "%mode_choice%"=="1" echo                       (SIMULATION - aucune modification)
+if "%mode_choice%"=="2" echo                       (EXECUTION - modifications reelles)
 echo ========================================================================
 echo.
-if "%mode_choice%"=="1" (
-    echo WARNING: NEF files will be modified!
+if "%mode_choice%"=="2" (
+    echo ATTENTION: Les fichiers NEF vont etre modifies!
     echo.
 )
-echo Press any key to start synchronization...
+echo Appuyez sur une touche pour lancer la synchronisation...
 pause >nul
 
 echo.
-echo Synchronizing...
+echo Synchronisation en cours...
 echo.
 
-python sync_gpx_to_photos_en.py "%gpx_file%" "%nef_folder%" %backup_flag% %dryrun_flag%
+python sync_gpx_to_photos_fr.py "%gpx_file%" "%nef_folder%" %backup_flag% %dryrun_flag%
 
 if %errorlevel% neq 0 (
     echo.
-    echo [ERROR] Synchronization failed!
+    echo [ERREUR] La synchronisation a echoue!
     pause
-    goto MAIN_MENU
+    goto MENU_PRINCIPAL
 )
 
 echo.
 echo ========================================================================
-echo SYNCHRONIZATION COMPLETE!
+echo SYNCHRONISATION TERMINEE!
 echo ========================================================================
 if "%mode_choice%"=="1" (
-    echo   Mode: EXECUTION - Files updated
-    if "%backup_choice%"=="1" (
-        echo   Backups: Available in %nef_folder% (.backup files)
-    )
+    echo   Mode: SIMULATION - Aucun fichier modifie
 ) else (
-    echo   Mode: SIMULATION - No files modified
+    echo   Mode: EXECUTION - Fichiers mis a jour
+    if "%backup_choice%"=="1" (
+        echo   Backups: Disponibles dans %nef_folder% (fichiers .backup)
+    )
 )
 echo ========================================================================
 echo.
 pause
-goto MAIN_MENU
+goto MENU_PRINCIPAL
 
 REM ============================================================================
-REM COMPLETE PIPELINE (GENERATION + AUTOMATIC SYNC)
+REM PIPELINE COMPLET (GENERATION + SYNC AUTOMATIQUE)
 REM ============================================================================
-:COMPLETE_PIPELINE
+:PIPELINE_COMPLET
 cls
 echo ========================================================================
-echo            COMPLETE PIPELINE: GENERATION + SYNCHRONIZATION
+echo            PIPELINE COMPLET: GENERATION + SYNCHRONISATION
 echo ========================================================================
 echo.
 
 echo ----------------------------------------------------------------------
-echo  STEP 1/2: GPX GENERATION
+echo  ETAPE 1/2: GENERATION GPX
 echo ----------------------------------------------------------------------
 echo.
 
-echo [1/6] Folder containing your smartphone photos:
+echo [1/6] Dossier contenant vos photos smartphone:
 echo.
-set /p "photo_source=Path: "
+set /p "photo_source=Chemin: "
 
 if not exist "%photo_source%" (
-    echo [ERROR] Folder does not exist!
+    echo [ERREUR] Le dossier n'existe pas!
     pause
-    goto COMPLETE_PIPELINE
+    goto PIPELINE_COMPLET
 )
 
 echo.
-echo [2/6] GPX destination folder (leave empty = same folder):
+echo [2/6] Dossier de destination du GPX (laissez vide = meme dossier):
 echo.
 set /p "gpx_output="
 
@@ -310,11 +310,11 @@ if "%gpx_output%"=="" (
 )
 
 echo.
-echo [3/6] Anonymize GPS coordinates?
-echo   1. NO - Exact coordinates (default)
-echo   2. YES - City center coordinates
+echo [3/6] Anonymiser les coordonnees GPS ?
+echo   1. NON - Coordonnees exactes (defaut)
+echo   2. OUI - Coordonnees centre-ville
 echo.
-set /p "anon_choice=Choice (1-2) [1]: "
+set /p "anon_choice=Choix (1-2) [1]: "
 if "%anon_choice%"=="" set "anon_choice=1"
 
 set "anonymize_flag="
@@ -322,37 +322,37 @@ if "%anon_choice%"=="2" set "anonymize_flag=--anonymize"
 
 echo.
 echo ----------------------------------------------------------------------
-echo  STEP 2/2: SYNCHRONIZATION GPX to NEF PHOTOS
+echo  ETAPE 2/2: SYNCHRONISATION GPX vers PHOTOS NEF
 echo ----------------------------------------------------------------------
 echo.
 
-echo [4/6] Folder containing your Nikon photos (NEF):
+echo [4/6] Dossier contenant vos photos Nikon (NEF):
 echo.
-set /p "nef_folder=Path: "
+set /p "nef_folder=Chemin: "
 
 if not exist "%nef_folder%" (
-    echo [ERROR] Folder does not exist!
+    echo [ERREUR] Le dossier n'existe pas!
     pause
-    goto COMPLETE_PIPELINE
+    goto PIPELINE_COMPLET
 )
 
 echo.
-echo [5/6] Create a backup of NEF files?
-echo   1. YES - Create .backup (recommended, default)
-echo   2. NO - Modify directly
+echo [5/6] Creer une sauvegarde des NEF ?
+echo   1. OUI - Creer .backup (recommande, defaut)
+echo   2. NON - Modifier directement
 echo.
-set /p "backup_choice=Choice (1-2) [1]: "
+set /p "backup_choice=Choix (1-2) [1]: "
 if "%backup_choice%"=="" set "backup_choice=1"
 
 set "backup_flag="
 if "%backup_choice%"=="1" set "backup_flag=--backup"
 
 echo.
-echo [6/6] Operating mode:
-echo   1. EXECUTION - Actually modify files (default)
-echo   2. SIMULATION (dry-run)
+echo [6/6] Mode de fonctionnement:
+echo   1. EXECUTION - Modifier reellement les fichiers (defaut)
+echo   2. SIMULATION (dry-run) - Tester sans modifier
 echo.
-set /p "mode_choice=Choice (1-2) [1]: "
+set /p "mode_choice=Choix (1-2) [1]: "
 if "%mode_choice%"=="" set "mode_choice=1"
 
 set "dryrun_flag="
@@ -360,39 +360,39 @@ if "%mode_choice%"=="2" set "dryrun_flag=--dry-run"
 
 echo.
 echo ========================================================================
-echo COMPLETE PIPELINE SUMMARY:
+echo RESUME DU PIPELINE COMPLET:
 echo ========================================================================
-echo STEP 1 - GPX GENERATION:
-echo   Smartphone photos:  %photo_source%
-echo   GPX destination:    %gpx_output%
-echo   Anonymization:      %anon_choice%
+echo ETAPE 1 - GENERATION GPX:
+echo   Photos smartphone:  %photo_source%
+echo   Destination GPX:    %gpx_output%
+echo   Anonymisation:      %anon_choice%
 echo.
-echo STEP 2 - SYNCHRONIZATION:
-echo   NEF photos:         %nef_folder%
+echo ETAPE 2 - SYNCHRONISATION:
+echo   Photos NEF:         %nef_folder%
 echo   Backup:             %backup_choice%
 echo   Mode:               %mode_choice%
 echo ========================================================================
 echo.
-echo Press any key to start the complete pipeline...
+echo Appuyez sur une touche pour lancer le pipeline complet...
 pause >nul
 
 echo.
 echo ========================================================================
-echo [STEP 1/2] Generating GPX...
+echo [ETAPE 1/2] Generation du GPX...
 echo ========================================================================
 echo.
 
 if "%gpx_output%"=="%photo_source%" (
-    python photo_gps_to_gpx_en.py "%photo_source%" %anonymize_flag%
+    python photo_gps_to_gpx_fr.py "%photo_source%" %anonymize_flag%
 ) else (
-    python photo_gps_to_gpx_en.py "%photo_source%" "%gpx_output%" %anonymize_flag%
+    python photo_gps_to_gpx_fr.py "%photo_source%" "%gpx_output%" %anonymize_flag%
 )
 
 if %errorlevel% neq 0 (
     echo.
-    echo [ERROR] GPX generation failed!
+    echo [ERREUR] La generation du GPX a echoue!
     pause
-    goto MAIN_MENU
+    goto MENU_PRINCIPAL
 )
 
 for %%F in ("%photo_source%") do set "folder_name=%%~nxF"
@@ -409,42 +409,42 @@ if not exist "%generated_gpx%" (
 )
 
 echo.
-echo GPX generated: %generated_gpx%
+echo GPX genere: %generated_gpx%
 timeout /t 2 >nul
 
 echo.
 echo ========================================================================
-echo [STEP 2/2] Synchronizing GPX to NEF photos...
+echo [ETAPE 2/2] Synchronisation GPX vers Photos NEF...
 echo ========================================================================
 echo.
 
-python sync_gpx_to_photos_en.py "%generated_gpx%" "%nef_folder%" %backup_flag% %dryrun_flag%
+python sync_gpx_to_photos_fr.py "%generated_gpx%" "%nef_folder%" %backup_flag% %dryrun_flag%
 
 if %errorlevel% neq 0 (
     echo.
-    echo [ERROR] Synchronization failed!
+    echo [ERREUR] La synchronisation a echoue!
     pause
-    goto MAIN_MENU
+    goto MENU_PRINCIPAL
 )
 
 echo.
 echo ========================================================================
-echo COMPLETE PIPELINE FINISHED SUCCESSFULLY!
+echo PIPELINE COMPLET TERMINE AVEC SUCCES!
 echo ========================================================================
-echo   1. GPX generated:      %generated_gpx%
-echo   2. Photos synchronized in: %nef_folder%
-if "%mode_choice%"=="1" echo   Mode: EXECUTION
-if "%mode_choice%"=="2" echo   Mode: SIMULATION
+echo   1. GPX genere:      %generated_gpx%
+echo   2. Photos synchronisees dans: %nef_folder%
+if "%mode_choice%"=="1" echo   Mode: SIMULATION
+if "%mode_choice%"=="2" echo   Mode: EXECUTION
 echo ========================================================================
 echo.
 pause
-goto MAIN_MENU
+goto MENU_PRINCIPAL
 
-:END
+:FIN
 cls
 echo.
 echo ========================================================================
-echo                     Goodbye!
+echo                     Au revoir!
 echo ========================================================================
 echo.
 timeout /t 2 >nul

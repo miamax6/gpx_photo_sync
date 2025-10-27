@@ -1,4 +1,4 @@
-# 📸🗺️ Photo GPS Sync - Automatic Photo Geotagging
+# 📸🗺️ GPX PHOTO SYNC - Automatic Photo Geotagging
 
 Complete solution to generate GPX tracks from your smartphone photos and automatically synchronize GPS and location data to your RAW photos (Nikon NEF, Canon CR2, Sony ARW) or JPEG.
 
