@@ -1,5 +1,5 @@
-- [English](#-photo-gps-sync---automatic-photo-geotagging)
-- [Français](#-photo-gps-sync---géotaggage-automatique-de-photos)
+- [English](#%EF%B8%8F-photo-gps-sync---automatic-photo-geotagging)
+- [Français](#%EF%B8%8F-photo-gps-sync---géotaggage-automatique-de-photos)
 ___
 
 # 📸🗺️ Photo GPS Sync - Automatic Photo Geotagging
