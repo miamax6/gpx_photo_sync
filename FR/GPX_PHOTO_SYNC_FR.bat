@@ -4,7 +4,7 @@ setlocal enabledelayedexpansion
 REM Script interactif pour generer GPX depuis photos et synchroniser
 
 color 0A
-title Gestionnaire GPX - Photos
+title GPX PHOTO SYNC - by miamax_
 
 :MENU_PRINCIPAL
 cls
@@ -234,8 +234,8 @@ echo   Backup:             %backup_choice%
 if "%backup_choice%"=="1" echo                       (fichiers .backup crees)
 if "%backup_choice%"=="2" echo                       (pas de backup)
 echo   Mode:               %mode_choice%
-if "%mode_choice%"=="1" echo                       (SIMULATION - aucune modification)
-if "%mode_choice%"=="2" echo                       (EXECUTION - modifications reelles)
+if "%mode_choice%"=="2" echo                       (SIMULATION - aucune modification)
+if "%mode_choice%"=="1" echo                       (EXECUTION - modifications reelles)
 echo ========================================================================
 echo.
 if "%mode_choice%"=="2" (
@@ -262,7 +262,7 @@ echo.
 echo ========================================================================
 echo SYNCHRONISATION TERMINEE!
 echo ========================================================================
-if "%mode_choice%"=="1" (
+if "%mode_choice%"=="2" (
     echo   Mode: SIMULATION - Aucun fichier modifie
 ) else (
     echo   Mode: EXECUTION - Fichiers mis a jour
