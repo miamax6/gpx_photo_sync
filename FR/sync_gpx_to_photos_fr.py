@@ -469,7 +469,7 @@ Notes:
     print(f"Total photos:           {stats['total']}")
     print(f"✅ Synchronisées:       {stats['synced']}")
     print(f"⏱️  Ignorées (> 1h):     {stats['skipped_too_far']}")
-    print(f"⚠️  Ignorées (pas date): {stats['skipped_no_date']}")
+    print(f"⚠️  Ignorées (0 date): {stats['skipped_no_date']}")
     print(f"❌ Erreurs:              {stats['errors']}")
     print()
     
