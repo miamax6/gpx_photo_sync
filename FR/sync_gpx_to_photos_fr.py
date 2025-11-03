@@ -32,17 +32,32 @@ import piexif
 import pyexiv2
 
 import tempfile, shutil, unicodedata
+from datetime import datetime
+import logging
+from logging.handlers import RotatingFileHandler
 
-def needs_tempfile(path: Path) -> bool:
+def setup_logging(gpx_file):
     """
-    Retourne True si le chemin contient des caractères non-ASCII (accents, etc.)
+    Configure la journalisation vers la console et le fichier
+    Le fichier sera créé dans le même répertoire que le fichier GPX
     """
-    s = str(path)
-    try:
-        s.encode("ascii")
-        return False
-    except UnicodeEncodeError:
-        return True
+    log_dir = os.path.dirname(os.path.abspath(gpx_file))
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    log_file = os.path.join(log_dir, f"sync_{timestamp}.log")
+    
+    # Configure le format de journalisation
+    log_format = '%(asctime)s - %(message)s'
+    date_format = '%Y-%m-%d %H:%M:%S'
+    
+    # Crée le gestionnaire de fichier
+    file_handler = RotatingFileHandler(log_file, maxBytes=1024*1024, backupCount=5)
+    file_handler.setFormatter(logging.Formatter(log_format, date_format))
+    
+    # Configure le logger principal
+    logging.root.setLevel(logging.INFO)
+    logging.root.addHandler(file_handler)
+    
+    return log_file
 
 # Seuil de temps maximum pour synchronisation (en secondes)
 MAX_TIME_DIFF_SECONDS = 3600  # 1 heure
@@ -266,19 +281,14 @@ def update_photo_metadata(image_path, gpx_point, backup=True, dry_run=False):
         
         if dry_run:
             print(f"      [DRY-RUN] Modification simulée")
+            logging.info(f"[DRY-RUN] Modification simulée pour : {os.path.basename(image_path)}")
             return True
         
-        # Vérifier si le chemin contient des accents
-        if needs_tempfile(image_path):
-            # Créer un fichier temporaire sans accent
-            tmpdir = tempfile.mkdtemp()
-            tmpfile = os.path.join(tmpdir, os.path.basename(image_path))
-            shutil.copy2(image_path, tmpfile)
-            work_path = tmpfile
-            use_temp = True
-        else:
-            work_path = str(image_path)
-            use_temp = False
+        # Utilise toujours un fichier temporaire pour de meilleures performances
+        tmpdir = tempfile.mkdtemp()
+        tmpfile = os.path.join(tmpdir, os.path.basename(image_path))
+        shutil.copy2(image_path, tmpfile)
+        work_path = tmpfile
 
         # Ouvrir l'image avec pyexiv2
         img = pyexiv2.Image(work_path)
@@ -330,9 +340,8 @@ def update_photo_metadata(image_path, gpx_point, backup=True, dry_run=False):
         # Fermer et sauvegarder
         img.close()
 
-        # Si on a utilisé un fichier temporaire, recopier le résultat
-        if use_temp:
-            shutil.move(work_path, image_path)
+        # Copier le fichier temporaire vers la destination finale
+        shutil.move(work_path, image_path)
         
         print(f"      ✓ GPS et IPTC mis à jour")
         return True
@@ -406,6 +415,7 @@ def process_photos(photos_folder, gpx_points, backup=True, dry_run=False):
     return stats
 
 def main():
+    start_time = datetime.now()
     parser = argparse.ArgumentParser(
         description='Synchronise un fichier GPX avec des photos (RAW/JPEG)',
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -444,6 +454,9 @@ Notes:
         print(f"❌ Erreur: Le dossier '{args.photos_folder}' n'existe pas")
         sys.exit(1)
     
+    # Configuration du logging
+    log_file = setup_logging(args.gpx_file)
+    
     print("=" * 70)
     print("📷 SYNC GPX → PHOTOS (RAW/JPEG)")
     if args.dry_run:
@@ -451,6 +464,15 @@ Notes:
     if args.backup:
         print("💾 MODE BACKUP activé")
     print("=" * 70)
+    
+    # Journalisation des informations initiales
+    logging.info("=" * 50)
+    logging.info("Démarrage de GPX Photo Sync")
+    logging.info("=" * 50)
+    logging.info(f"Fichier GPX : {os.path.abspath(args.gpx_file)}")
+    logging.info(f"Dossier photos : {os.path.abspath(args.photos_folder)}")
+    logging.info(f"Mode Backup : {'activé' if args.backup else 'désactivé'}")
+    logging.info(f"Simulation : {'oui' if args.dry_run else 'non'}")
     
     # Charger le GPX
     gpx_points = parse_gpx(args.gpx_file)
@@ -462,6 +484,10 @@ Notes:
     # Traiter les photos
     stats = process_photos(args.photos_folder, gpx_points, backup=args.backup, dry_run=args.dry_run)
     
+    # Calcul du temps d'exécution
+    end_time = datetime.now()
+    execution_time = (end_time - start_time).total_seconds()
+
     # Afficher le résumé
     print("=" * 70)
     print("📊 RÉSUMÉ")
@@ -473,13 +499,28 @@ Notes:
     print(f"❌ Erreurs:              {stats['errors']}")
     print()
     
+    # Journal du résumé
+    logging.info("\n" + "=" * 50)
+    logging.info("RÉSUMÉ DES OPÉRATIONS")
+    logging.info("=" * 50)
+    logging.info(f"Total photos traitées : {stats['total']}")
+    logging.info(f"Photos synchronisées : {stats['synced']}")
+    logging.info(f"Photos ignorées (écart > 1h) : {stats['skipped_too_far']}")
+    logging.info(f"Photos ignorées (sans date) : {stats['skipped_no_date']}")
+    logging.info(f"Erreurs rencontrées : {stats['errors']}")
+    logging.info(f"Temps d'exécution total : {execution_time:.1f} secondes")
+    
     if args.dry_run:
         print("ℹ️  Mode dry-run: Aucune photo n'a été modifiée")
+        logging.info("Mode simulation : Aucune photo n'a été modifiée")
     elif stats['synced'] > 0:
         print("🎉 Synchronisation terminée!")
+        logging.info("Synchronisation terminée avec succès")
         if args.backup:
             print("💾 Les fichiers .backup contiennent les originaux")
+            logging.info("Fichiers de sauvegarde (.backup) créés pour toutes les photos traitées")
     
+    print(f"\nFichier journal créé : {log_file}")
     print()
 
 if __name__ == '__main__':
