@@ -34,24 +34,39 @@ import pyexiv2
 import tempfile, shutil, unicodedata
 from datetime import datetime
 import logging
-from logging.handlers import RotatingFileHandler
 
 def setup_logging(gpx_file):
     """
-    Sets up logging to both console and file
+    Sets up logging to file
     File will be created in the same directory as the GPX file
     """
+    # Reset any existing handlers
+    for handler in logging.root.handlers[:]:
+        logging.root.removeHandler(handler)
+        # Ensure handlers are properly closed
+        try:
+            handler.close()
+        except:
+            pass
+    
     log_dir = os.path.dirname(os.path.abspath(gpx_file))
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     log_file = os.path.join(log_dir, f"sync_{timestamp}.log")
     
     # Configure logging format
-    log_format = '%(asctime)s - %(message)s'
-    date_format = '%Y-%m-%d %H:%M:%S'
+    formatter = logging.Formatter('%(asctime)s - %(message)s', '%Y-%m-%d %H:%M:%S')
     
-    # Create file handler
-    file_handler = RotatingFileHandler(log_file, maxBytes=1024*1024, backupCount=5)
-    file_handler.setFormatter(logging.Formatter(log_format, date_format))
+    class SafeFileHandler(logging.FileHandler):
+        """File handler with safe flush handling"""
+        def flush(self):
+            try:
+                super().flush()
+            except OSError:
+                pass  # Ignore flush errors
+    
+    # Safe file handler
+    file_handler = SafeFileHandler(log_file, mode='w', encoding='utf-8')
+    file_handler.setFormatter(formatter)
     
     # Configure root logger
     logging.root.setLevel(logging.INFO)
@@ -272,12 +287,14 @@ def decimal_to_dms_string(decimal, is_latitude):
 
 def update_photo_metadata(image_path, gpx_point, backup=True, dry_run=False):
     """Updates EXIF and IPTC metadata of a photo (NEF, JPEG, etc.) with pyexiv2"""
+    tmpdir = None
     try:
         # Backup if requested
         if backup and not dry_run:
             backup_path = str(image_path) + '.backup'
             if not os.path.exists(backup_path):
                 shutil.copy2(image_path, backup_path)
+                logging.info(f"Created backup: {os.path.basename(backup_path)}")
         
         if dry_run:
             print(f"      [DRY-RUN] Simulated modification")
@@ -290,8 +307,20 @@ def update_photo_metadata(image_path, gpx_point, backup=True, dry_run=False):
         shutil.copy2(image_path, tmpfile)
         work_path = tmpfile
 
-        # Open image with pyexiv2
-        img = pyexiv2.Image(work_path)
+        # Redirect warnings to log
+        import warnings
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            
+            # Open image with pyexiv2
+            img = pyexiv2.Image(work_path)
+            
+            # Log warnings more discreetly
+            for warning in w:
+                if "Strip 0 is outside of the data area" in str(warning.message):
+                    logging.debug(f"Expected warning while processing NEF: {warning.message}")
+                else:
+                    logging.warning(f"Warning while processing image: {warning.message}")
         
         # === Update GPS EXIF tags ===
         exif_dict = {}
@@ -340,18 +369,29 @@ def update_photo_metadata(image_path, gpx_point, backup=True, dry_run=False):
         # Close and save
         img.close()
 
-        # If using temporary file, copy result back
-        if use_temp:
-            shutil.move(work_path, image_path)
+        # Move temporary file to final destination
+        shutil.move(work_path, image_path)
         
         print(f"      ✓ GPS and IPTC updated")
+        logging.info(f"Successfully updated GPS and IPTC data for {os.path.basename(image_path)}")
         return True
     
     except Exception as e:
         print(f"      ❌ Error: {e}")
+        logging.error(f"Error processing {os.path.basename(image_path)}: {str(e)}")
         import traceback
+        trace = traceback.format_exc()
+        logging.error(trace)
         traceback.print_exc()
         return False
+        
+    finally:
+        # Clean up temporary directory
+        if tmpdir and os.path.exists(tmpdir):
+            try:
+                shutil.rmtree(tmpdir)
+            except Exception as e:
+                logging.warning(f"Could not clean up temporary directory {tmpdir}: {str(e)}")
 
 def process_photos(photos_folder, gpx_points, backup=True, dry_run=False):
     """Processes all photos in a folder"""
@@ -518,7 +558,7 @@ Notes:
         print("🎉 Synchronization completed!")
         logging.info("Synchronization completed successfully")
         if args.backup:
-            print("💾 Backup files (.backup) contain originals")
+            print("💾 Backup files .backup contain originals")
             logging.info("Backup files (.backup) created for all processed photos")
     
     print(f"\nLog file created: {log_file}")
